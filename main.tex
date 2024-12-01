@@ -1,0 +1,190 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx} 
+\usepackage{float}
+
+\title{Abgabe 1 für Computergestützte Methoden}
+\author{Gruppe 50 \\ Rebekka Ewert, Ekaterini Skampali, Eleonora Kamysni}
+\date{01.12.2024}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Der zentrale Grenzwertsatz}
+Der zentrale Grenzwertsatz (ZGS) ist ein fundamentales Resultat der Wahrscheinlichkeitstheorie, das die Verteilung von Summen unabhängiger, identisch verteilter (\textit{i.i.d.}) Zufallsvariablen (ZV) beschreibt. Er besagt, dass unter bestimmten Voraussetzungen die Summe einer großen Anzahl solcher ZV annähernd normalverteilt ist, unabhängig von der Verteilung der einzelnen ZV. Dies ist besonders nützlich, da die Normalverteilung gut untersucht und mathematisch handhabbar ist.
+
+\subsection{Aussage}
+Sei \(X_1, X_2, \dots, X_n\) eine Folge von \textit{i.i.d.} ZV mit dem Erwartungswert \(\mu = E(X_i)\) und der Varianz \(\sigma^2 = \text{Var}(X_i)\), wobei \(0 < \sigma^2 < \infty\) gelte. Dann konvergiert die standardisierte Summe \(Z_n\) dieser ZV für \(n \to \infty\) in Verteilung gegen eine Standardnormalverteilung:\footnote{Der zentrale Grenzwertsatz hat verschiedene Verallgemeinerungen. Eine davon ist der Lindeberg-Feller-Zentrale-Grenzwertsatz [1, Seite 328], der schwächere Bedingungen an die Unabhängigkeit und die identische Verteilung der ZV stellt.}
+
+\begin{equation}
+Z_n = \frac{\sum_{i=1}^n X_i - n\mu}{\sigma \sqrt{n}} \overset{d}{\to} N(0, 1).
+\end{equation}
+Das bedeutet, dass für große \(n\) die Summe der ZV näherungsweise normalverteilt ist mit Erwartungswert \(n\mu\) und Varianz \(n\sigma^2\):
+
+\begin{equation}
+\sum_{i=1}^n X_i \sim N(n\mu, n\sigma^2).
+\end{equation}
+
+\subsection{Erklärung der Standardisierung}
+Um die Summe der ZV in eine Standardnormalverteilung zu transformieren, subtrahiert man den Erwartungswert \(n\mu\) und teilt durch die Standardabweichung \(\sigma \sqrt{n}\). Dies führt zu der obigen Formel (1). Die Darstellung (2) ist für \(n \to \infty\) nicht wohldefiniert.
+
+\subsection{Anwendungen}
+Der ZGS wird in vielen Bereichen der Statistik und der Wahrscheinlichkeitstheorie angewendet. Typische Beispiele sind:
+\begin{itemize}
+    \item \textbf{Schätzung von Mittelwerten in großen Stichproben:} Der Zentrale Grenzwertsatz ermöglicht es, die Verteilung des Stichprobenmittelwerts $\bar{X}$ einer großen Zufallsstichprobe näherungsweise als normalverteilt anzunehmen, unabhängig von der Verteilung der Grundgesamtheit. Dies ist besonders nützlich in der statistischen Inferenz, beispielsweise beim Konstruieren von Konfidenzintervallen oder beim Testen von Hypothesen über den Mittelwert. \footnote{https://statologie.de/zentraler-grenzwertsatz/} 
+    \item \textbf{Qualitätssicherung in der Produktion:} In der Qualitätskontrolle werden Messwerte wie z.\,B. Gewicht, Länge oder Fehleranzahl von Produkten oft als Zufallsvariablen modelliert. Durch die Anwendung des ZGS kann man davon ausgehen, dass die Summe oder der Mittelwert der Messwerte einer großen Stichprobe näherungsweise normalverteilt ist. Dies erleichtert die Anwendung von Kontrollcharts oder Entscheidungsregeln, die auf der Normalverteilung basieren.
+    \footnote{https://martin-grellmann.de/was-ist-der-zentrale-grenzwertsatz-und-warum-ist-der-wichtig}
+\end{itemize}
+
+\section{Datenhaltung \& -aufbereitung}
+
+\subsection{Thema Datenverarbeitung}
+
+\subsubsection{Importieren des Datensatzes in einer Tabellenkalkulation}
+Zuerst haben wir die CSV-Datei, die uns zur Verfügung gestellt wurde, in Excel importiert. Dazu haben wir die Option \texttt{Daten > Aus Text/CSV} verwendet. Diese Datei enthielt Daten in einem textbasierten, durch Kommas getrennten Format. Während des Imports wurde überprüft, dass jede Spalte korrekt formatiert ist. Beispielsweise wurde die Spalte „date“ als Datumsformat erkannt, während numerische Spalten wie \texttt{precipitation}, \texttt{windspeed} oder \texttt{average\_temperature} korrekt , als Zahlen importiert wurden. Danach haben wir unsere Datensatz \texttt{E 12 St \& Ave C} isoliert. Fehlende Werte, wie das \texttt{NA}, wurden beibehalten, um diese später im Analyseprozess zu berücksichtigen.
+
+Die erfolgreiche Datenübernahme in die Tabellenkalkulation ermöglichte es, Berechnungen wie die Ermittlung der höchsten mittleren Temperatur direkt durchzuführen. Diese Vorbereitung legt auch den Grundstein für die weitere Verarbeitung der Daten in einer Datenbank.
+
+\subsubsection{Entwurf des Datenbank-Schemas (1. und 2. Normalform)}
+Die Kombination aus \texttt{Datum} und \texttt{Anzahl} identifiziert jede Zeile eindeutig und dient als Primärschlüssel. Der Datensatz erfüllt die 1. Normalform (1NF), da jede Spalte atomare Werte enthält und keine Mehrfachwerte oder sich wiederholenden Gruppen vorliegen. In der 2. Normalform (2NF) müssen alle Nicht-Prime-Attribute vollständig vom gesamten Primärschlüssel abhängen. Dies ist hier der Fall, da Attribute wie \texttt{precipitation}, \texttt{windspeed} oder \texttt{average\_temperature} ausschließlich von \texttt{Datum} und \texttt{Anzahl} abhängen. Es gibt keine partiellen Abhängigkeiten, sodass die Tabelle bereits in der 2NF vorliegt.
+
+Eine Optimierung wäre, die Spalte \texttt{station} in eine separate Tabelle auszulagern, da diese Informationen unabhängig von den Wetterdaten sind und sich wiederholen. Die Wetterdaten könnten dann über einen Fremdschlüssel mit einer neuen Stations-Tabelle verknüpft werden. Dadurch wird die Datenbank strukturierter, wartbarer und redundanzfrei.
+
+\subsubsection{Untersuchung der Daten}
+Zu Beginn haben wir den für unsere Gruppe relevanten Datensatz, \texttt{E 12 St \& Ave C} untersucht und uns mit seinem Aufbau vertraut gemacht. Im Folgenden beschreiben wir unsere Erkenntnisse. Der Datensatz umfasst Daten im Zeitraum vom 01.01. bis zum 31.12.2023 mit insgesamt 365 Zeilen und 12 Spalten. Neben den Spalten Gruppe, Station und Datum, gibt es noch die Spalten \texttt{Tag im Jahr}, \texttt{Tag in der Woche} und \texttt{Monat im Jahr}, sowie weitere sechs Spalten zu verschiedenen Abfragen. In diesen sind die Informationen Windgeschwindigkeit, Niederschlag, maximale und minimale Temperatur, Durchschnittstemperatur und Zählung enthalten. 
+
+In der Spalte \texttt{day\_of\_year} (Tag im Jahr) steht am 01.08. und 06.08.2023 die Bezeichnung \texttt{NA} in den Zellen. Dieses Problem ist einfach zu beheben, da man sich an den vorangegangenen Daten orientieren kann. Somit ergibt sich für den 01.08.2023 der Tag 213 im Jahr und für den 06.08.2023 der Tag 218 im Jahr.
+
+In der Spalte \texttt{day\_of\_week} (Tag in der Woche) steht am 23.09.2023 ebenfalls die Bezeichnung \texttt{NA} in der Zelle. Dieses Problem ist ebenfalls einfach zu beheben, da man sich am vorangegangenen Datum orientieren kann, wodurch sich für den 23.09.2023 der Tag 7 der Woche ergibt.
+
+In der Spalte \texttt{precipitation} (Niederschlag) wurde am 24.03.2023 ein negativer Wert \texttt{-1} verzeichnet, was jedoch falsch ist, da es keinen Niederschlag \texttt{$> 0$} gibt. Des Weiteren ist die Zelle am 10.11.2023 leer, daher ergänzen wir hier die Bezeichnung \texttt{NA}, da der Wert \texttt{0} nicht korrekt wäre. Es wäre nicht korrekt, weil der Wert \texttt{0} tatsächlich eine spezifische Aussage darstellt, nämlich dass an diesem Datum ein Messwert von \texttt{0} vorlag. Da jedoch nicht eindeutig feststeht, ob an diesem Datum keine Messung durchgeführt wurde oder ob der Wert schlicht vergessen wurde, ist \texttt{NA} die passendere Wahl.
+
+In der Spalte \texttt{windspeed} (Windgeschwindigkeit) wurde am 28.05.2023 ein negativer Wert \texttt{-1} verzeichnet, was jedoch falsch ist, da es keine Windgeschwindigkeit \texttt{$> 0$} gibt. Des Weiteren ist die Zelle am 15.09.2023 leer, daher ergänzen wir hier Bezeichnung \texttt{NA}, da der Wert \texttt{0} nicht korrekt wäre. Dies würde nämlich suggerieren, dass an dem Datum nicht gemessen wurde, was möglicherweise sein kann, jedoch könnte es auch der Fall sein, dass bloß vergessen wurde einen Wert einzutragen.
+
+In der Spalte \texttt{min\_temperature} (Minimale Temperatur) steht die Bezeichnung \texttt{NA} am 03.10.2023 in der Zelle. Dennoch wird die \texttt{average\_temperature} (Durchschnittstemperatur) mit 65 angegeben.
+
+In der Spalte \texttt{average\_temperature} (Durchschnittstemperatur) steht am 20.01.2023 der Wert \texttt{-1}, welcher nicht korrekt sein kann. Dieses Problem lässt sich jedoch beheben, indem man die Durchschnittstemperatur eigenständig berechnet mithilfe der gegebenen maximalen und minimalen Temperatur, also 
+
+=([@[min\_temperature]] + [@[max\_temperature]])/2,
+
+d.h. wir rechnen (39+50) /2 = \texttt{45} und ergänzen diesen Wert in der Zelle.
+
+Außerdem steht in der Spalte \texttt{average\_temperature} (Durchschnittstemperatur) am 26.02.2023 die Bezeichnung \texttt{NA} in der Zelle. Dieses Problem lässt sich jedoch ebenfalls beheben, indem man die Mitteltemperatur eigenständig berechnet, wie bereits oben geschehen, d.h. wir rechnen (23+50) /2 = \texttt{36,5} und ergänzen diesen Wert in der Zelle.
+
+In der Spalte \texttt{max\_temperature} (maximale Temperatur) fehlt der Wert am 12.05.2023, d.h. die Zelle ist leer. Dennoch ist eine Durchschnittstemperatur gegeben.
+In der Spalte \texttt{count} wurde am 28.06.2023 eine Zählung von \texttt{-1} erfasst, was faktisch nicht korrekt sein kann, da eine Zählung keinen Wert \texttt{$> 0$} annehmen kann.
+
+Des Weiteren ist uns aufgefallen, dass die Berechnung der Durchschnittstemperatur in der Spalte \texttt{average\_temperature} nur in 82 von 365 Zeilen korrekt war. In den restlichen Zeilen gab es Abweichungen von \texttt{-46} bis \texttt{+65} Grad Fahrenheit. Diese Abweichungen sind uns aufgefallen, da wir eine Spalte ergänzt haben, in der wir die Durchschnittstemperatur nachgerechnet haben.
+
+\subsubsection{Berechnung der höchsten mittleren Temperatur}
+Um die gegebenen Durchschnittstemperaturen von Fahrenheit in Grad Celsius umzurechnen, ergänzen wir eine neue Spalte (N). Wir nutzen für die Umrechnung die Formel 
+
+\texttt{= ([@[average\_temperature]] - 32) * 5/9}.
+
+Um nun die höchste mittlere Temperatur herauszufinden, haben wir den Befehl \texttt{= Max []} auf die Spalte angewendet. Dabei kam der Wert \texttt{28,33} Grad Celsius raus. Wenn wir den Befehl \texttt{= Max []} ebenfalls auf unsere Spalte mit den neu berechneten Durchschnittstemperaturen anwenden, erhalten wir den Wert \texttt{28,1} Grad Celsius.
+
+\subsection{Thema Datenhaltung}
+\subsubsection{Entwurf eines Datenbank-Schemas}
+Der Datensatz wurde analysiert, um eine geeignete Struktur in der Datenbank zu entwickeln, die den Anforderungen der 1. und 2. Normalform entspricht. D.h. in der ersten Normalform enthalten alle Spalten atomare Werte und es gibt keine Mehrfachwerte in einer Zelle. In der zweiten Normalform wurde die Tabelle zur Vermeidung von Redundanzen in zwei logische Tabellen aufgeteilt. Eine Tabelle für die Stationsdaten und eine Tabelle für die Wetterdaten. 
+
+Tabelle Stations:
+\begin{itemize}
+    \item station\_id: Eindeutige ID für jede Station (Primärschlüssel)
+    \item station\_name: Name der Station (z. B. \texttt{E 12 St \& Ave C})
+    \item group: Gruppenzugehörigkeit der Station (z. B. 1)
+\end{itemize}
+
+Tabelle WeatherData:
+\begin{itemize}
+    \item id: Eindeutige ID für jeden Datensatz (Primärschlüssel)
+    \item station\_id: Verweis auf die Station (Fremdschlüssel)
+    \item date: Datum im Format YYYY-MM-DD
+    \item count: Anzahl der Einträge pro Tag
+    \item precipitation: Niederschlagsmenge in Millimetern
+    \item windspeed: Windgeschwindigkeit in km/h
+    \item min\_temperature: Minimale Temperatur des Tages
+    \item average\_temperature: Durchschnittstemperatur des Tages
+    \item max\_temperature: Maximale Temperatur des Tages
+\end{itemize}
+
+\subsubsection{Definition der Tabellen in SQL}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{screenshot1.png} 
+    \caption{Import und Isolierung unseres Datensatzes} 
+    \label{fig:screenshot1} 
+\end{figure}
+
+SQL DDL-Befehle für das Schema:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{screenshot2.png} 
+    \caption{Tabelle Station} 
+    \label{fig:screenshot2} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshot3.png} 
+    \caption{Tabelle Wetterdaten} 
+    \label{fig:screenshot3} 
+\end{figure}
+
+\subsubsection{Vorbereitung und Import des Datensatzes}
+Der vollständige Datensatz wurde in zwei Teile aufgeteilt, um den Tabellen \texttt{stations} und \texttt{temperatures} zu entsprechen. Die Spalte \texttt{station} wurde extrahiert und jeder \texttt{station} eine eindeutige \texttt{station\_id} zugeordnet.
+
+Vorgehen:
+Der Datensatz wurde in SQLite importiert und die relevanten Daten \texttt{E 12 St \& Ave C} durch Filtern extrahiert. Es wurden zwei separate CSV-Dateien erstellt. Die \texttt{stations.csv-Datei} mit \texttt{station\_id} und \texttt{station\_name} und die \texttt{temperatures.csv-Datei} mit den übrigen Attributen und der \texttt{station\_id}. Diese Dateien wurden mit den Befehlen \texttt{.mode csv} und \texttt{.import} in SQLite geladen.
+
+\subsubsection{SQL-Abfrage zu höchster mittlerer Temperatur}
+Formulierung einer SQL-Abfrage, um die höchste mittlere Temperatur in Grad Celsius aus den Ihrer Gruppe zugeordneten Daten zu ermitteln.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{screenshot4.png} 
+    \caption{SQL-Abfrage} 
+    \label{fig:screenshot4} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{screenshot5.png} 
+    \caption{Höchste Durchschnittstemperatur in Grad Fahrenheit} 
+    \label{fig:screenshot5} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{screenshot6.png} 
+    \caption{Höchste Durchschnittstemperatur in Grad Celsius} 
+    \label{fig:screenshot6} 
+\end{figure}
+
+\newpage
+
+\begin{thebibliography}{9}
+    \bibitem{Klenke2013}
+    Achim Klenke. \textit{Wahrscheinlichkeitstheorie}. Springer, 3. Auflage, 2013.
+    
+    \bibitem{Statologie2024} 
+    Statologie. 
+    \textit{Der zentrale Grenzwertsatz: Grundlagen und Anwendungen}. Online verfügbar unter \url{https://statologie.de/zentraler-grenzwertsatz}.
+    
+    \bibitem{Grellmann2024}
+    Martin Grellmann. 
+    \textit{Was ist der zentrale Grenzwertsatz und warum ist er wichtig?}. Online verfügbar unter \url{https://martin-grellmann.de/was-ist-der-zentrale-grenzwertsatz}
+\end{thebibliography}
+
+
+\end{document}
